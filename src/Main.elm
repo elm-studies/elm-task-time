@@ -17,19 +17,22 @@ getTime =
         |> Task.perform TimeUpdated
 
 
+getCurrentTimeAsString : Model -> String
+getCurrentTimeAsString (CurrentTime t) =
+    String.fromInt t
+
+
 
 ---- MODEL ----
 
 
-type alias Model =
-    { wasPressed : Bool
-    , time : Int
-    }
+type Model
+    = CurrentTime Int
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { wasPressed = False, time = 0 }, getTime )
+    ( CurrentTime 0, getTime )
 
 
 
@@ -49,14 +52,13 @@ update msg model =
             ( model, Cmd.none )
 
         PressMe ->
-            ( { model | wasPressed = not model.wasPressed }, getTime )
+            ( model, getTime )
 
         TimeUpdated t ->
-            let
-                toNum =
-                    Time.posixToMillis t
-            in
-            ( { model | time = toNum }, Cmd.none )
+            ( Time.posixToMillis t
+                |> CurrentTime
+            , Cmd.none
+            )
 
 
 
@@ -66,7 +68,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ h3 [] [ text <| "Timestamp: " ++ String.fromInt model.time ]
+        [ h3 [] [ text <| "Timestamp: " ++ getCurrentTimeAsString model ]
         , button [ onClick PressMe ] [ text "press me" ]
         ]
 
